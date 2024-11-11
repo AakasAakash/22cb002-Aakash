@@ -1,21 +1,40 @@
-name: React App Build
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
-on: [push]
+name: Github Pages Deploy
+
+on:
+  push:
+    branches:
+      - "main"
+permissions:
+  contents: write
+
 jobs:
-  react-app-build:
+  build:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+    
     steps:
-      - name: Checkout Repository
+      - name: Checkout 🛎
         uses: actions/checkout@v4
 
-      - name: Run npm install
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies 🔧
         run: npm install
 
-      - name: Run npm build
-        run: npm run build
+      - name: Run the tests and generate coverage report 🔧
+        run: npm test -- --coverage
 
-      - name: List the contents
-        run: ls -lrt
-        
-      - name: Deployment 
-        run: echo "Deployment Step"
+      - name: Build 🔧
+        run: npm run build
+      
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages # The branch the action should deploy to.
+          folder: build # The folder the action should deploy.
